@@ -1,0 +1,79 @@
+services:
+  resolver:
+    build:
+      context: ./resolver
+      args:
+        BIND9_PREFERRED_VERSION: "9.18.39"
+        BIND9_FALLBACK_SERIES: "9.18"
+    image: scenario-resolver:bind9-9.18
+    container_name: resolver
+    ports:
+      - "10053:53/tcp"
+      - "10053:53/udp"
+    networks:
+      scenario-net:
+        ipv4_address: 172.20.0.10
+    restart: unless-stopped
+
+  auth:
+    build:
+      context: ./auth
+      args:
+        BIND9_PREFERRED_VERSION: "9.18.39"
+        BIND9_FALLBACK_SERIES: "9.18"
+    image: scenario-auth:bind9-9.18
+    container_name: auth
+    cap_add:
+      - NET_ADMIN
+    environment:
+      AUTH_DELAY_MS: "10"
+    ports:
+      - "20053:53/tcp"
+      - "20053:53/udp"
+    networks:
+      scenario-net:
+        ipv4_address: 172.20.0.20
+    restart: unless-stopped
+
+  attacker:
+    build:
+      context: ./attacker
+    image: scenario-attacker:scapy
+    container_name: attacker
+    privileged: true
+    command: ["sleep", "infinity"]
+    networks:
+      scenario-net:
+        ipv4_address: 172.20.0.30
+    restart: unless-stopped
+
+  real-web:
+    build:
+      context: ./real-web
+    image: scenario-real-web:nginx
+    container_name: real-web
+    ports:
+      - "8081:80"
+    networks:
+      scenario-net:
+        ipv4_address: 172.20.0.50
+    restart: unless-stopped
+
+  fake-web:
+    build:
+      context: ./fake-web
+    image: scenario-fake-web:nginx
+    container_name: fake-web
+    ports:
+      - "8082:80"
+    networks:
+      scenario-net:
+        ipv4_address: 172.20.0.60
+    restart: unless-stopped
+
+networks:
+  scenario-net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.20.0.0/24
