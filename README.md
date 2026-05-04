@@ -1,4 +1,4 @@
-# MIMT 기반 DNS Spoofing
+# MITM 기반 DNS Spoofing
 
 ### [참고] 타겟 ip 확인하기
 - 리졸버 IP 확인: `docker exec -it resolver hostname -i` (기본값: 172.20.0.20)
